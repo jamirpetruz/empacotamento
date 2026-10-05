@@ -53,7 +53,7 @@ export default function Layout({ children }: LayoutProps) {
       <aside
         className={`
           fixed left-0 top-0 z-50 h-screen
-          bg-gray-900 text-white
+          bg-gray-800 text-white
           border-r border-gray-800
           transition-all duration-300 ease-in-out
 
@@ -172,7 +172,7 @@ export default function Layout({ children }: LayoutProps) {
       >
 
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm sm:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-200 bg-gray-900 px-4 shadow-sm sm:px-6">
 
           <div className="flex items-center gap-3">
 
@@ -199,11 +199,11 @@ export default function Layout({ children }: LayoutProps) {
             </button>
 
             <div>
-              <h1 className="text-lg font-semibold text-gray-800">
+              <h1 className="text-lg font-semibold text-gray-200">
                 Meu App
               </h1>
 
-              <p className="hidden text-xs text-gray-500 sm:block">
+              <p className="hidden text-xs text-gray-400 sm:block">
                 Sistema administrativo
               </p>
             </div>
@@ -214,11 +214,11 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-3">
 
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-200">
                 Usuário
               </p>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-400">
                 Administrador
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function Layout({ children }: LayoutProps) {
         </header>
 
         {/* Conteúdo */}
-        <main className="bg-blue-950 min-h-[calc(100vh-4rem)] p-4 sm:p-6">
+        <main className="bg-gray-900 min-h-[calc(100vh-4rem)] p-4 sm:p-6">
 
           <div className="mx-auto max-w-7xl">
             {children}

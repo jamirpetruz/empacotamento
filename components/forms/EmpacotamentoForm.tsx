@@ -1,5 +1,6 @@
 'use client';
 
+import { createEmpacotamentoAction } from '@/actions/EmpacotamentoActions';
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 
 // Tipos permitidos para as caixas (personalize conforme sua necessidade)
@@ -29,7 +30,7 @@ export interface FormData {
         cx7: CaixaItem;
         cx8: CaixaItem;
     };
-    unidadesSoltas: string;
+    unidadesSoltas: number;
     urlImagem: string;
     observacao: string;
 }
@@ -52,23 +53,29 @@ const initialFormState: FormData = {
         cx7: { quantidade: 0, tipo: '' },
         cx8: { quantidade: 0, tipo: '' },
     },
-    unidadesSoltas: '0',
+    unidadesSoltas: 0,
     urlImagem: '',
     observacao: '',
 };
 
-export default function ApontamentoForm() {
+export default function EmpacotamentoForm() {
     const [formData, setFormData] = useState<FormData>(initialFormState);
-
+    const totalKg = formData.unidadesSoltas * (Object.values(formData.caixas).reduce(
+        (total, caixa) => total + Number(caixa.quantidade || 0),
+        0
+    ));
     // Manipulador genérico de alteração nos inputs e selects
     const handleChange = (
         e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
 
-        // Trata os campos das caixas (ex: name="caixas.cx1.quantidade" ou "caixas.cx1.tipo")
         if (name.startsWith('caixas.')) {
-            const [, cxKey, field] = name.split('.') as [string, keyof FormData['caixas'], keyof CaixaItem];
+            const [, cxKey, field] = name.split('.') as [
+                string,
+                keyof FormData['caixas'],
+                keyof CaixaItem
+            ];
 
             setFormData((prev) => ({
                 ...prev,
@@ -76,21 +83,15 @@ export default function ApontamentoForm() {
                     ...prev.caixas,
                     [cxKey]: {
                         ...prev.caixas[cxKey],
-                        [field]: value,
+                        [field]: field === 'quantidade' ? Number(value) : value,
                     },
                 },
             }));
         } else {
-const totalCaixas = Object.entries(formData.caixas).reduce(
-  (total, [, quantidade]) => total + Number(quantidade),
-  0
-);
             setFormData((prev) => ({
                 ...prev,
                 [name]: value,
-
             }));
-
         }
     };
 
@@ -98,9 +99,9 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
         setFormData(initialFormState);
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        console.log('Dados do formulário:', formData);
+        createEmpacotamentoAction(formData);
     };
 
     const listaCaixas = ['cx1', 'cx2', 'cx3', 'cx4', 'cx5', 'cx6', 'cx7', 'cx8'] as const;
@@ -148,7 +149,7 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
                         </select>
                     </div>
 
-                    <div className="md:col-span-1.5">
+                    <div className="md:col-span-2">
                         <label className="block text-xs font-semibold text-gray-400 mb-2">Início</label>
                         <input
                             type="time"
@@ -159,37 +160,12 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
                         />
                     </div>
 
-                    <div className="md:col-span-1.5">
+                    <div className="md:col-span-2">
                         <label className="block text-xs font-semibold text-gray-400 mb-2">Fim</label>
                         <input
                             type="time"
                             name="fim"
                             value={formData.fim}
-                            onChange={handleChange}
-                            className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
-                        />
-                    </div>
-                </div>
-
-                {/* Linha 2: Total (kg), Meta (kg) */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                    <div className="md:col-span-2">
-                        <label className="block text-xs font-semibold text-gray-400 mb-2">Total (kg)</label>
-                        <input
-                            type="text"
-                            name="totalKg"
-                            value={formData.totalKg}
-                            onChange={handleChange}
-                            className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
-                        />
-                    </div>
-
-                    <div className="md:col-span-2">
-                        <label className="block text-xs font-semibold text-gray-400 mb-2">Meta (kg)</label>
-                        <input
-                            type="text"
-                            name="metaKg"
-                            value={formData.metaKg}
                             onChange={handleChange}
                             className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
                         />
@@ -205,7 +181,7 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
                         {listaCaixas.map((cx, index) => (
                             <div key={cx} className="flex gap-2 items-center">
                                 <input
-                                    type="text"
+                                    type="number"
                                     name={`caixas.${cx}.quantidade`}
                                     placeholder={`CX${index + 1}`}
                                     value={formData.caixas[cx].quantidade}
@@ -227,8 +203,7 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
                         ))}
                     </div>
                 </div>
-
-                {/* Linha 4: Unidades soltas, URL da imagem */}
+                 {/* Linha 2: Total (kg), Meta (kg) */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div className="md:col-span-2">
                         <label className="block text-xs font-semibold text-gray-400 mb-2">
@@ -242,16 +217,25 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
                             className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
                         />
                     </div>
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-semibold text-gray-400 mb-2">Total (kg)</label>
+                        <input
+                            disabled
+                            type="number"
+                            name="totalKg"
+                            value={totalKg}
+                            className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
+                        />
+                    </div>
 
-                    <div className="md:col-span-4">
-                        <label className="block text-xs font-semibold text-gray-400 mb-2">URL da imagem</label>
+                    <div className="md:col-span-2">
+                        <label className="block text-xs font-semibold text-gray-400 mb-2">Meta (kg)</label>
                         <input
                             type="text"
-                            name="urlImagem"
-                            placeholder="https://..."
-                            value={formData.urlImagem}
+                            name="metaKg"
+                            value={formData.metaKg}
                             onChange={handleChange}
-                            className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-amber-500"
+                            className="w-full bg-gray-900 border border-[#232f2e] rounded-md p-2.5 text-sm text-gray-100 focus:outline-none focus:border-amber-500"
                         />
                     </div>
                 </div>
@@ -272,7 +256,7 @@ const totalCaixas = Object.entries(formData.caixas).reduce(
                 <div className="flex gap-3 pt-2">
                     <button
                         type="submit"
-                        className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-2.5 rounded-md transition-colors text-sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-md transition-colors text-sm"
                     >
                         Salvar apontamento
                     </button>

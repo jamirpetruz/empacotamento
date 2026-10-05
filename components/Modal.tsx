@@ -27,13 +27,13 @@ export default function Modal({
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-lg rounded-xl bg-white shadow-xl">
+      <div className="relative z-10 w-full max-w-[90vw] rounded-xl bg-gray-800 shadow-xl max-h-[90vh] overflow-hidden">
 
         {/* Header */}
         <div className="flex items-center justify-between border-b px-5 py-4">
 
           {title && (
-            <h2 className="text-lg font-semibold text-gray-800">
+            <h2 className="text-lg font-semibold text-white">
               {title}
             </h2>
           )}
@@ -41,7 +41,7 @@ export default function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 cursor-pointer"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
@@ -49,7 +49,7 @@ export default function Modal({
         </div>
 
         {/* Conteúdo */}
-        <div className="p-5">
+        <div className="p-5 overflow-y-auto max-h-[calc(90vh-4rem)]">
           {children}
         </div>
 
